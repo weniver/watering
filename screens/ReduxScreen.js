@@ -10,7 +10,6 @@ import Colors from "../constants/Colors";
 import { increaseCount, decreaseCount } from "../store/actions/counter.js";
 
 const ReduxScreen = props => {
-  console.log(props);
   return (
     <View style={styles.container}>
       <View style={styles.counterContainer}>
