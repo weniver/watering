@@ -47,7 +47,7 @@ const formReducer = (state, action) => {
 
 const LoginScreen = props => {
   //You need to add a key to inputValues and to inputValidities per input in the form
-  //key must be the same as type prop in the input
+  //key must be the same as id prop in the input
   const [formState, dispatchFormState] = useReducer(formReducer, {
     inputValues: {
       email: "",
@@ -86,16 +86,23 @@ const LoginScreen = props => {
       <Card>
         <FormTextInput
           type="email"
+          id="email"
           label="email:"
           onInputChange={inputChangeHandler}
         />
         <FormTextInput
           type="password"
+          id="password"
           label="password:"
           onInputChange={inputChangeHandler}
         />
 
-        <Button title="Submit" style={{ backgroundColor: "#3dd3d3" }} />
+        <Button
+          title="Submit"
+          onPress={() => {
+            console.log(formState);
+          }}
+        />
       </Card>
     </View>
   );
