@@ -69,12 +69,29 @@ const FormTextInput = props => {
       isValid = false;
       dispatch({ type: SET_ERROR_MESSAGE, error: "Please use a valid email." });
     }
-    if (props.minLength != null && text.length < props.minLength) {
+    if (props.minLength != null && text.trim().length < props.minLength) {
       isValid = false;
       dispatch({
         type: SET_ERROR_MESSAGE,
         error: `Must be at least ${props.minLength} characters long.`
       });
+    }
+    if (props.type === "password") {
+      if(text.trim().length < 8){
+          isValid = false;
+          dispatch({
+            type: SET_ERROR_MESSAGE,
+            error: `Must be at least 8 characters long.`
+          });
+      }
+        if(!(/.*[0-9].*/).test(text)){
+            isValid = false;
+            dispatch({
+              type: SET_ERROR_MESSAGE,
+              error: `Must contain at least one number.`
+            });
+        }
+
     }
     dispatch({ type: INPUT_CHANGE, value: text, isValid: isValid });
   };
@@ -91,8 +108,8 @@ const FormTextInput = props => {
   };
 
   const showListErrors = errors => {
-    return errors.map(error => {
-      return <Text style={styles.errorText}>{"\u2022 " + error}</Text>;
+    return errors.map((error,i) => {
+      return <Text key={i} style={styles.errorText}>{"\u2022 " + error}</Text>;
     });
   };
 
