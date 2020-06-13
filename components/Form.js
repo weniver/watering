@@ -1,5 +1,7 @@
-import React, { useReducer, useEffect, useState } from "react";
+import React, { useReducer, useEffect, useState, useCallback } from "react";
 import { View, Text, TextInput, StyleSheet } from "react-native";
+import { RectButton } from "react-native-gesture-handler";
+import Card from "./Card.js";
 
 const INPUT_CHANGE = "INPUT_CHANGE";
 const INPUT_BLUR = "INPUT_BLUR";
@@ -9,6 +11,7 @@ const CLEAR_ERRORS = "CLEAR_ERRORS";
 //INPUT_VALIDATION you can use useReduces without redux when you want to manage
 //complex states. You could also use severes useStates but that gets complicated really quick.
 //You define the Reducer outside your component to prevent this function to define/rerun each rendercicle.
+
 const FORM_INPUT_UPDATE = "FORM_INPUT_UPDATE";
 
 const formReducer = (state, action) => {
@@ -38,29 +41,38 @@ const formReducer = (state, action) => {
 };
 
 const Form = props => {
-  //You need to add a key to inputValues and to inputValidities per input in the form
-  //key must be the same as type prop in the input
-  const [formState, dispatchFormState] = useReducer(formReducer, {
-    inputValues: {
-      email: "",
-      password: ""
+  const createInitialState = useCallback(
+    children => {
+      let inputValues = {};
+      let inputValidities = {};
+      React.Children.map(children, inputElement => {
+        let key = inputElement.props.id;
+        inputValues[key] = "";
+        inputValidities[key] = inputElement.props.optional ?? false;
+      });
+      return {
+        inputValues: inputValues,
+        inputValidities: inputValidities,
+        formIsValid: false
+      };
     },
-    inputValidities: {
-      email: false,
-      password: false
-    },
-    formIsValid: false
-  });
+    [props.children]
+  );
 
-  // const handleLogIn = async (email, password) => {
-  //   try {
-  //     await props.handleSignIn(email, password);
-  //   } catch (e) {
-  //     setError(e);
-  //   }
-  // };
+  const [formState, dispatchFormState] = useReducer(
+    formReducer,
+    createInitialState(props.children)
+  );
 
-  //Updates form state when any input changes (you need to pass this handler to all inputs)
+  const handleLogIn = async (email, password) => {
+    try {
+      await props.handleSignIn(email, password);
+    } catch (e) {
+      setError(e);
+    }
+  };
+
+  // Updates form state when any input changes (you need to pass this handler to all inputs)
   const inputChangeHandler = useCallback(
     (inputIdentifier, inputValue, inputValidity) => {
       dispatchFormState({
@@ -76,15 +88,45 @@ const Form = props => {
   return (
     <View style={styles.container}>
       <Card>
-        {props.childern}
-        <Button title="Submit"/>
+        {React.Children.map(props.children, (ele, i) => {
+          return React.cloneElement(ele, {
+            key: i,
+            onInputChange: inputChangeHandler
+          });
+        })}
+        <View style={{ ...styles.buttonsContainer, ...props.buttonAlignment }}>
+          <RectButton
+            style={{ ...styles.button, ...props.buttonStyle }}
+            onPress={() => {
+              console.log(formState);
+            }}
+          >
+            <Text style={{ ...styles.buttonText, ...props.buttonTextStyle }}>
+              Console Log State
+            </Text>
+          </RectButton>
+        </View>
       </Card>
     </View>
   );
 };
 
 const styles = StyleSheet.create({
-  container: { flex: 1, alignItems: "center", justifyContent: "center" }
+  container: { flex: 1, alignItems: "center", justifyContent: "center" },
+  buttonsContainer: {
+    alignItems: "center",
+    justifyContent: "center",
+    marginTop: 20
+  },
+  button: {
+    height: 40,
+    minWidth: "50%",
+    backgroundColor: "red",
+    alignItems: "center",
+    justifyContent: "center",
+    borderRadius: 4
+  },
+  buttonText: { fontSize: 20, color: "white", marginHorizontal: 15 }
 });
 
 export default Form;

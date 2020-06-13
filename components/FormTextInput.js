@@ -61,6 +61,10 @@ const FormTextInput = props => {
     const emailRegex = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
     let isValid = true;
     dispatch({ type: CLEAR_ERRORS });
+    // Si no es requerido y esta vacio debe quitar errores y poner valido
+    // if (!props.optional && text.trim().length !== 0) {
+    //   console.log("0");
+    // }
     if (!props.optional && text.trim().length === 0) {
       isValid = false;
       dispatch({ type: SET_ERROR_MESSAGE, error: "This can't be blank." });
@@ -77,21 +81,24 @@ const FormTextInput = props => {
       });
     }
     if (props.type === "password") {
-      if(text.trim().length < 8){
-          isValid = false;
-          dispatch({
-            type: SET_ERROR_MESSAGE,
-            error: `Must be at least 8 characters long.`
-          });
+      if (text.trim().length < 8) {
+        isValid = false;
+        dispatch({
+          type: SET_ERROR_MESSAGE,
+          error: `Must be at least 8 characters long.`
+        });
       }
-        if(!(/.*[0-9].*/).test(text)){
-            isValid = false;
-            dispatch({
-              type: SET_ERROR_MESSAGE,
-              error: `Must contain at least one number.`
-            });
-        }
-
+      if (!/.*[0-9].*/.test(text)) {
+        isValid = false;
+        dispatch({
+          type: SET_ERROR_MESSAGE,
+          error: `Must contain at least one number.`
+        });
+      }
+    }
+    if (props.optional && text.trim().length === 0) {
+      isValid = true;
+      dispatch({ type: CLEAR_ERRORS });
     }
     dispatch({ type: INPUT_CHANGE, value: text, isValid: isValid });
   };
@@ -108,8 +115,12 @@ const FormTextInput = props => {
   };
 
   const showListErrors = errors => {
-    return errors.map((error,i) => {
-      return <Text key={i} style={styles.errorText}>{"\u2022 " + error}</Text>;
+    return errors.map((error, i) => {
+      return (
+        <Text key={i} style={styles.errorText}>
+          {"\u2022 " + error}
+        </Text>
+      );
     });
   };
 
