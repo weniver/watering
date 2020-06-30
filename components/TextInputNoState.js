@@ -1,44 +1,20 @@
-import React, { useReducer, useEffect, useState } from "react";
-import { View, Text, TextInput, StyleSheet } from "react-native";
+import React, { useReducer, useEffect, useState, useRef } from "react";
+import {
+  View,
+  Text,
+  TextInput,
+  StyleSheet,
+  TouchableWithoutFeedback,
+} from "react-native";
 
-const INPUT_CHANGE = "INPUT_CHANGE";
-const INPUT_BLUR = "INPUT_BLUR";
-const SET_ERROR_MESSAGE = "SET_ERROR_MESSAGE";
-const CLEAR_ERRORS = "CLEAR_ERRORS";
+const FormTextInput = (props) => {
+  const textInputRef = useRef();
 
-//INPUT_VALIDATION you can use useReduces without redux when you want to manage
-//complex states. You could also use severes useStates but that gets complicated really quick.
-//You define the Reducer outside your component to prevent this function to define/rerun each rendercicle.
-const inputReducer = (state, action) => {
-  switch (action.type) {
-    case INPUT_CHANGE:
-      return {
-        ...state,
-        value: action.value,
-        isValid: action.isValid
-      };
-    case CLEAR_ERRORS:
-      return {
-        ...state,
-        errors: []
-      };
-    case INPUT_BLUR:
-      return {
-        ...state,
-        touched: true
-      };
-    case SET_ERROR_MESSAGE:
-      return {
-        ...state,
-        errors: [...state.errors, action.error]
-      };
-    default:
-      return state;
-  }
-};
+  const focusInput = () => {
+    textInputRef.current.focus();
+  };
 
-const FormTextInput = props => {
-  const showListErrors = errors => {
+  const showListErrors = (errors) => {
     return errors.map((error, i) => {
       return (
         <Text key={i} style={styles.errorText}>
@@ -49,12 +25,18 @@ const FormTextInput = props => {
   };
   return (
     <View style={styles.formControl}>
-      <Text style={styles.label}>{props.label}</Text>
+      <TouchableWithoutFeedback onPress={focusInput}>
+        <Text style={styles.label}>{props.label}</Text>
+      </TouchableWithoutFeedback>
       <TextInput
+        ref={textInputRef}
         style={styles.input}
+        autoCapitalize={props.autoCapitalize ?? "none"}
+        keyboardType={props.keyboardType ?? (props.type === "email") ? "email-address" : "default"}
+        secureTextEntry={props.secureTextEntry ?? (props.type === "password") ? true : false}
         {...props}
       />
-      {props.errors && props.touched && (
+      {props.errors.length !== 0 && props.touched && (
         <View style={styles.errorContainer}>
           {showListErrors(props.errors)}
         </View>
@@ -65,24 +47,25 @@ const FormTextInput = props => {
 
 const styles = StyleSheet.create({
   formControl: {
-    width: "100%"
+    width: "100%",
+    marginVertical: 10,
   },
   label: {
-    marginVertical: 8
+    marginVertical: 8,
   },
   input: {
     paddingHorizontal: 2,
     paddingVertical: 5,
     borderBottomColor: "#121212",
-    borderBottomWidth: 2
+    borderBottomWidth: 2,
   },
   errorContainer: {
-    marginVertical: 5
+    marginVertical: 5,
   },
   errorText: {
     color: "red",
-    fontSize: 13
-  }
+    fontSize: 13,
+  },
 });
 
 export default FormTextInput;
