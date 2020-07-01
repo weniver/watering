@@ -32,8 +32,17 @@ const FormTextInput = (props) => {
         ref={textInputRef}
         style={styles.input}
         autoCapitalize={props.autoCapitalize ?? "none"}
-        keyboardType={props.keyboardType ?? (props.type === "email") ? "email-address" : "default"}
-        secureTextEntry={props.secureTextEntry ?? (props.type === "password") ? true : false}
+        keyboardType={
+          props.keyboardType ?? props.type === "email"
+            ? "email-address"
+            : "default"
+        }
+        secureTextEntry={
+          props.secureTextEntry ??
+          (props.type === "password" || props.type === "password-confirmation")
+            ? true
+            : false
+        }
         {...props}
       />
       {props.errors.length !== 0 && props.touched && (

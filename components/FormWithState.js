@@ -54,6 +54,7 @@ const Form = (props) => {
   const createInitialState = useCallback(
     (children) => {
       let inputs = {};
+      console.log(props.children);
       React.Children.map(children, (inputElement) => {
         let key = inputElement.props.id;
         inputs[key] = {
@@ -65,19 +66,23 @@ const Form = (props) => {
           touched: false,
           id: key,
         };
+        if (inputElement.props.confirmId) {
+          inputs[key].confirmId = inputElement.props.confirmId;
+        }
       });
       return inputs;
     },
     [props.children]
   );
 
-//Initialize Form State
+  //Initialize Form State
   const [formState, dispatchFormState] = useReducer(
     formReducer,
     createInitialState(props.children)
   );
 
   //Check input value validity and uptades input errors, is uses prop type to know how to validate
+  //if your input type is password confimation pass also the prop confirmId to get the value to compare from state
   const validate = (text, inputProps) => {
     const emailRegex = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
     const passwordRegexContainsNumber = /.*[0-9].*/;
@@ -98,6 +103,12 @@ const Form = (props) => {
         errors.push(`Must contain at least one number.`);
       }
     }
+    if (
+      inputProps.type === "password-confirmation" &&
+      text !== formState[inputProps.confirmId].value
+    ) {
+      errors.push(`The password confirmation does not match`);
+    }
     if (inputProps.optional && text.trim().length === 0) {
       errors = [];
     }
@@ -112,22 +123,22 @@ const Form = (props) => {
     });
   };
 
-//updates input touched value
+  //updates input touched value
   const onBlurHandler = (inputId) => {
     dispatchFormState({ type: SHOW_ERRORS, input: inputId });
   };
 
-//Use Form props to pass a onSubmitHandler to handle data once is validated.
+  //Use Form props to pass a onSubmitHandler to handle data once is validated.
   const onFormSubmit = () => {
     let formIsValid = isFormValid();
     if (formIsValid) {
       props.onFormSubmit(formState);
     } else {
-        props.onFormSubmit("fail")
+      props.onFormSubmit("fail");
     }
   };
 
-//Helper to check all form inputs validities and overall form validity on submit
+  //Helper to check all form inputs validities and overall form validity on submit
   const isFormValid = () => {
     let validity = true;
     for (const inputId in formState) {
@@ -188,7 +199,7 @@ const Form = (props) => {
 };
 
 const styles = StyleSheet.create({
-  container: { flex: 1, alignItems: "center", justifyContent: "center" },
+  container: { alignItems: "center", justifyContent: "center" },
   buttonsContainer: {
     alignItems: "center",
     justifyContent: "center",

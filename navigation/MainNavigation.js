@@ -4,10 +4,11 @@ import { NavigationContainer } from "@react-navigation/native";
 import { createStackNavigator } from "@react-navigation/stack";
 import BottomTabNavigator from "./BottomTabNavigator";
 import LoginScreen from "../screens/LoginScreen.js";
+import SignUpScreen from "../screens/SignUpScreen.js";
 
 const Stack = createStackNavigator();
 
-export default MainNavigation = props => {
+export default MainNavigation = (props) => {
   const auth = false;
 
   return (
@@ -23,21 +24,28 @@ export default MainNavigation = props => {
             options={{
               title: "Template Info",
               headerStyle: {
-                backgroundColor: "#000"
+                backgroundColor: "#000",
               },
               headerTitleAlign: "center",
               headerTintColor: "#fff",
               headerTitleStyle: {
-                fontWeight: "bold"
-              }
+                fontWeight: "bold",
+              },
             }}
           />
         ) : (
-          <Stack.Screen
-            name="Auth"
-            component={LoginScreen}
-            options={{ headerShown: false }}
-          />
+          <>
+            <Stack.Screen
+              name="Login"
+              component={LoginScreen}
+              options={{ headerShown: false, animationEnabled:false }}
+            />
+            <Stack.Screen
+              name="SignUp"
+              component={SignUpScreen}
+              options={{ headerShown: false,animationEnabled:false }}
+            />
+          </>
         )}
       </Stack.Navigator>
     </NavigationContainer>
