@@ -1,4 +1,4 @@
-import * as React from "react";
+import React, { useEffect } from "react";
 
 import { NavigationContainer } from "@react-navigation/native";
 import { createStackNavigator } from "@react-navigation/stack";
@@ -6,10 +6,15 @@ import BottomTabNavigator from "./BottomTabNavigator";
 import LoginScreen from "../screens/LoginScreen.js";
 import SignUpScreen from "../screens/SignUpScreen.js";
 
+import { connect } from "react-redux";
+import { handleSignOut, getLocalUser } from "../store/actions/auth.js";
+
 const Stack = createStackNavigator();
 
-export default MainNavigation = (props) => {
-  const auth = false;
+const MainNavigation = (props) => {
+  useEffect(() => {
+    props.getLocalUser();
+  }, []);
 
   return (
     <NavigationContainer
@@ -17,7 +22,7 @@ export default MainNavigation = (props) => {
       initialState={props.initialState}
     >
       <Stack.Navigator>
-        {auth ? (
+        {props.user ? (
           <Stack.Screen
             name="Root"
             component={BottomTabNavigator}
@@ -38,12 +43,12 @@ export default MainNavigation = (props) => {
             <Stack.Screen
               name="Login"
               component={LoginScreen}
-              options={{ headerShown: false, animationEnabled:false }}
+              options={{ headerShown: false, animationEnabled: false }}
             />
             <Stack.Screen
               name="SignUp"
               component={SignUpScreen}
-              options={{ headerShown: false,animationEnabled:false }}
+              options={{ headerShown: false, animationEnabled: false }}
             />
           </>
         )}
@@ -51,3 +56,11 @@ export default MainNavigation = (props) => {
     </NavigationContainer>
   );
 };
+
+const mapStateToProps = (state) => ({
+  user: state.auth.user,
+});
+
+export default connect(mapStateToProps, { handleSignOut, getLocalUser })(
+  MainNavigation
+);

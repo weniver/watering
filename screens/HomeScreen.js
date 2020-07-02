@@ -6,137 +6,43 @@ import {
   StyleSheet,
   Text,
   TouchableOpacity,
-  View
+  View,
 } from "react-native";
 import { ScrollView } from "react-native-gesture-handler";
 
-import { MonoText } from "../components/StyledText";
+import { RectButton } from "react-native-gesture-handler";
 
-export default function HomeScreen() {
+import { MonoText } from "../components/StyledText";
+import { connect } from "react-redux";
+import { handleSignOut } from "../store/actions/auth.js";
+
+const HomeScreen = (props) => {
   return (
     <View style={styles.container}>
-      <ScrollView
-        style={styles.container}
-        contentContainerStyle={styles.contentContainer}
+      <RectButton
+        style={styles.button}
+        onPress={() => {
+          props.handleSignOut()
+        }}
       >
-        <View style={styles.imageContainer}>
-          <Image
-            source={require("../assets/images/triangle_cube.png")}
-            style={styles.image}
-          />
-        </View>
-
-        <View style={styles.infoContainer}>
-          <Text style={styles.infoTitle}>
-            Template project for react native using expo. Includes:
-          </Text>
-          <View style={styles.list}>
-            <Text style={styles.listText}>1. Redux</Text>
-
-            <Text style={styles.listText}>
-              2. React Native Navigation
-            </Text>
-          </View>
-        </View>
-      </ScrollView>
-
-      <View style={styles.tabBarInfoContainer}>
-        <Text style={styles.tabBarInfoText}>
-          This is a tab bar. You can edit it in:
-        </Text>
-
-        <View
-          style={[styles.codeHighlightContainer, styles.navigationFilename]}
-        >
-          <MonoText style={styles.codeHighlightText}>
-            navigation/BottomTabNavigator.js
-          </MonoText>
-        </View>
-      </View>
+        <Text>Sign Out</Text>
+      </RectButton>
     </View>
   );
 }
 
-HomeScreen.navigationOptions = {
-  header: null
-};
+
+export default connect(null, { handleSignOut })(HomeScreen);
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#fff"
+    backgroundColor: "#fff",
   },
-  contentContainer: {
-    paddingTop: 30
-  },
-  imageContainer: {
+  button: {
+    backgroundColor: "pink",
+    flex: 1,
     alignItems: "center",
-    marginTop: 10,
-    marginBottom: 20
+    justifyContent: "center",
   },
-  image: {
-    width: "100%",
-    height: 160,
-    resizeMode: "contain",
-    marginTop: 3,
-    marginLeft: -10
-  },
-  infoContainer: {
-    marginHorizontal: 50,marginTop:20
-  },
-  codeHighlightText: {
-    color: "rgba(96,100,109, 0.8)"
-  },
-  codeHighlightContainer: {
-    backgroundColor: "rgba(0,0,0,0.05)",
-    borderRadius: 3,
-    paddingHorizontal: 4
-  },
-  listText: {
-    fontSize: 17,
-    color: "rgba(96,100,109, 1)",
-    lineHeight: 24,
-    textAlign: "left"
-  },
-  infoTitle: {
-    fontSize: 22,
-    color: "black",
-    lineHeight: 24,
-    textAlign: "left"
-  },
-  tabBarInfoContainer: {
-    position: "absolute",
-    bottom: 0,
-    left: 0,
-    right: 0,
-    ...Platform.select({
-      ios: {
-        shadowColor: "black",
-        shadowOffset: { width: 0, height: -3 },
-        shadowOpacity: 0.1,
-        shadowRadius: 3
-      },
-      android: {
-        elevation: 20
-      }
-    }),
-    alignItems: "center",
-    backgroundColor: "#fbfbfb",
-    paddingVertical: 20
-  },
-  tabBarInfoText: {
-    fontSize: 17,
-    color: "rgba(96,100,109, 1)",
-    textAlign: "center"
-  },
-  navigationFilename: {
-    marginTop: 5
-  },
-  helpLink: {
-    paddingVertical: 15
-  },
-  helpLinkText: {
-    fontSize: 14,
-    color: "#2e78b7"
-  },list:{paddingTop: 15,paddingLeft:30}
 });

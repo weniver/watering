@@ -54,7 +54,6 @@ const Form = (props) => {
   const createInitialState = useCallback(
     (children) => {
       let inputs = {};
-      console.log(props.children);
       React.Children.map(children, (inputElement) => {
         let key = inputElement.props.id;
         inputs[key] = {
@@ -134,7 +133,7 @@ const Form = (props) => {
     if (formIsValid) {
       props.onFormSubmit(formState);
     } else {
-      props.onFormSubmit("fail");
+      props.onFormSubmit(formState);
     }
   };
 

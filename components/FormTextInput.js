@@ -61,10 +61,6 @@ const FormTextInput = props => {
     const emailRegex = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
     let isValid = true;
     dispatch({ type: CLEAR_ERRORS });
-    // Si no es requerido y esta vacio debe quitar errores y poner valido
-    // if (!props.optional && text.trim().length !== 0) {
-    //   console.log("0");
-    // }
     if (!props.optional && text.trim().length === 0) {
       isValid = false;
       dispatch({ type: SET_ERROR_MESSAGE, error: "This can't be blank." });

@@ -10,14 +10,25 @@ import Card from "../components/Card.js";
 import Form from "../components/FormWithState.js";
 import FormTextInput from "../components/TextInputNoState.js";
 import { TouchableOpacity } from "react-native-gesture-handler";
+import { connect } from "react-redux";
+import { handleSignIn } from "../store/actions/auth.js";
 
 const LoginScreen = (props) => {
+  const handleSignIn = async (data) => {
+    try {
+      if (data) {
+        await props.handleSignIn(data.email.value, data.password.value);
+      }
+    } catch (e) {
+      console.log(e);
+    }
+  };
+
+
   return (
     <View style={styles.container}>
       <Form
-        onFormSubmit={(data) => {
-          console.log(data);
-        }}
+        onFormSubmit={handleSignIn}
       >
         <FormTextInput
           type="email"
@@ -53,4 +64,5 @@ const styles = StyleSheet.create({
   },
 });
 
-export default LoginScreen;
+
+export default connect(null, { handleSignIn })(LoginScreen);
