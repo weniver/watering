@@ -12,7 +12,6 @@ import { ScrollView } from "react-native-gesture-handler";
 
 import { RectButton } from "react-native-gesture-handler";
 
-import { MonoText } from "../components/StyledText";
 import { connect } from "react-redux";
 import { handleSignOut } from "../store/actions/auth.js";
 
@@ -30,7 +29,6 @@ const HomeScreen = (props) => {
     </View>
   );
 }
-
 
 export default connect(null, { handleSignOut })(HomeScreen);
 
