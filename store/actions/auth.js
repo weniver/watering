@@ -10,7 +10,6 @@ export const getLocalUser = () => async dispatch => {
       dispatch({ type: SET_USER, payload: user });
     }
   } catch (e) {
-    console.log(e);
   }
 };
 

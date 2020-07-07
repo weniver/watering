@@ -98,11 +98,10 @@ const Form = props => {
           <RectButton
             style={{ ...styles.button, ...props.buttonStyle }}
             onPress={() => {
-              console.log(formState);
             }}
           >
             <Text style={{ ...styles.buttonText, ...props.buttonTextStyle }}>
-              Console Log State
+              Submit
             </Text>
           </RectButton>
         </View>

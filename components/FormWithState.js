@@ -133,7 +133,6 @@ const Form = (props) => {
 
   //Use Form props to pass a onSubmitHandler to handle data once is validated.
   const onFormSubmit = () => {
-    console.log(props.serverSideError);
     let formIsValid = isFormValid();
     if (formIsValid) {
       props.onFormSubmit(formState);

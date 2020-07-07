@@ -16,7 +16,6 @@ const SignUpScreen = (props) => {
         await props.handleSignUp(data.email.value, data.password.value);
       }
     } catch (e) {
-      console.log(e);
     }
   };
 
