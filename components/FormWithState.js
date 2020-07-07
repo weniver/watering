@@ -83,43 +83,47 @@ const Form = (props) => {
   //Check input value validity and uptades input errors, is uses prop type to know how to validate
   //if your input type is password confimation pass also the prop confirmId to get the value to compare from state
   const validate = (text, inputProps) => {
-    const emailRegex = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
-    const passwordRegexContainsNumber = /.*[0-9].*/;
+    if (!!props.skipClientSideValidations) {
+      return;
+    } else {
+      const emailRegex = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+      const passwordRegexContainsNumber = /.*[0-9].*/;
 
-    let errors = [];
+      let errors = [];
 
-    if (!inputProps.optional && text.trim().length === 0) {
-      errors.push("This can't be blank.");
-    }
-    if (inputProps.type === "email" && !emailRegex.test(text.toLowerCase())) {
-      errors.push("Please use a valid email.");
-    }
-    if (inputProps.type === "password") {
-      if (text.trim().length < 8) {
-        errors.push(`Must be at least 8 characters long.`);
+      if (!inputProps.optional && text.trim().length === 0) {
+        errors.push("This can't be blank.");
       }
-      if (!passwordRegexContainsNumber.test(text)) {
-        errors.push(`Must contain at least one number.`);
+      if (inputProps.type === "email" && !emailRegex.test(text.toLowerCase())) {
+        errors.push("Please use a valid email.");
       }
-    }
-    if (
-      inputProps.type === "password-confirmation" &&
-      text !== formState[inputProps.confirmId].value
-    ) {
-      errors.push(`The password confirmation does not match`);
-    }
-    if (inputProps.optional && text.trim().length === 0) {
-      errors = [];
-    }
+      if (inputProps.type === "password") {
+        if (text.trim().length < 8) {
+          errors.push(`Must be at least 8 characters long.`);
+        }
+        if (!passwordRegexContainsNumber.test(text)) {
+          errors.push(`Must contain at least one number.`);
+        }
+      }
+      if (
+        inputProps.type === "password-confirmation" &&
+        text !== formState[inputProps.confirmId].value
+      ) {
+        errors.push(`The password confirmation does not match`);
+      }
+      if (inputProps.optional && text.trim().length === 0) {
+        errors = [];
+      }
 
-    let valid = errors.length === 0;
+      let valid = errors.length === 0;
 
-    dispatchFormState({
-      errors: errors,
-      type: UPDATE_INPUT_ERRORS,
-      valid: valid,
-      input: inputProps.id,
-    });
+      dispatchFormState({
+        errors: errors,
+        type: UPDATE_INPUT_ERRORS,
+        valid: valid,
+        input: inputProps.id,
+      });
+    }
   };
 
   //updates input touched value
@@ -129,6 +133,7 @@ const Form = (props) => {
 
   //Use Form props to pass a onSubmitHandler to handle data once is validated.
   const onFormSubmit = () => {
+    console.log(props.serverSideError);
     let formIsValid = isFormValid();
     if (formIsValid) {
       props.onFormSubmit(formState);
@@ -140,10 +145,12 @@ const Form = (props) => {
   //Helper to check all form inputs validities and overall form validity on submit
   const isFormValid = () => {
     let validity = true;
-    for (const inputId in formState) {
-      validate(formState[inputId].value, formState[inputId]);
-      dispatchFormState({ type: SHOW_ERRORS, input: inputId });
-      validity = validity && formState[inputId].valid;
+    if (!props.skipClientSideValidations) {
+      for (const inputId in formState) {
+        validate(formState[inputId].value, formState[inputId]);
+        dispatchFormState({ type: SHOW_ERRORS, input: inputId });
+        validity = validity && formState[inputId].valid;
+      }
     }
     return validity;
   };
@@ -165,6 +172,11 @@ const Form = (props) => {
     <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
       <KeyboardAvoidingView style={styles.container} behavior="padding">
         <Card>
+          {props.serverSideError && (
+            <View style={styles.errorContainer}>
+              <Text style={styles.errorText}>{props.serverSideError}</Text>
+            </View>
+          )}
           {React.Children.map(props.children, (ele, i) => {
             return React.cloneElement(ele, {
               key: i,
@@ -213,6 +225,13 @@ const styles = StyleSheet.create({
     borderRadius: 4,
   },
   buttonText: { fontSize: 20, color: "white", marginHorizontal: 15 },
+  errorContainer: {
+    marginVertical: 5,
+  },
+  errorText: {
+    color: "red",
+    fontSize: 13,
+  },
 });
 
 export default Form;

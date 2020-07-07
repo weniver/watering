@@ -1,10 +1,5 @@
-import React, { useEffect, useCallback, useReducer } from "react";
-import {
-  StyleSheet,
-  Text,
-  View,
-  TextInput,
-} from "react-native";
+import React, { useEffect, useState, useCallback, useReducer } from "react";
+import { StyleSheet, Text, View, TextInput } from "react-native";
 
 import Card from "../components/Card.js";
 import Form from "../components/FormWithState.js";
@@ -14,21 +9,28 @@ import { connect } from "react-redux";
 import { handleSignIn } from "../store/actions/auth.js";
 
 const LoginScreen = (props) => {
+const [serverSideError, setServerSideError] = useState(false);
+
   const handleSignIn = async (data) => {
     try {
       if (data) {
         await props.handleSignIn(data.email.value, data.password.value);
       }
     } catch (e) {
-      console.log(e);
+        if(e.code === "auth/invalid-email"){
+          setServerSideError("El usuario y/o la contraseña estan mal.")
+        } else {
+          setServerSideError("Por favor checa tus datos.")
+        }
     }
   };
-
 
   return (
     <View style={styles.container}>
       <Form
         onFormSubmit={handleSignIn}
+        skipClientSideValidations={true}
+        serverSideError={serverSideError}
       >
         <FormTextInput
           type="email"
@@ -63,6 +65,5 @@ const styles = StyleSheet.create({
     marginVertical: "5%",
   },
 });
-
 
 export default connect(null, { handleSignIn })(LoginScreen);

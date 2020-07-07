@@ -24,7 +24,7 @@ export const handleSignIn = (email, password) => async dispatch => {
       AsyncStorage.setItem("user", JSON.stringify(user));
     }
   } catch (e) {
-    throw e.code
+    throw e
   }
 };
 
