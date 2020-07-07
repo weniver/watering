@@ -1,4 +1,4 @@
-import React, { useEffect, useCallback, useReducer } from "react";
+import React, { useEffect, useState, useCallback, useReducer } from "react";
 import { StyleSheet, Text, View, TextInput } from "react-native";
 
 import Card from "../components/Card.js";
@@ -8,20 +8,24 @@ import { TouchableOpacity } from "react-native-gesture-handler";
 
 import { connect } from "react-redux";
 import { handleSignUp } from "../store/actions/auth.js";
+import { errorMessage } from "../helpers/firebaseHelpers.js";
 
 const SignUpScreen = (props) => {
+  const [serverSideError, setServerSideError] = useState(false);
+
   const handleSignUp = async (data) => {
     try {
       if (data) {
         await props.handleSignUp(data.email.value, data.password.value);
       }
     } catch (e) {
+      setServerSideError(errorMessage(e));
     }
   };
 
   return (
     <View style={styles.container}>
-      <Form onFormSubmit={handleSignUp}>
+      <Form onFormSubmit={handleSignUp} serverSideError={serverSideError}>
         <FormTextInput
           type="email"
           id="email"

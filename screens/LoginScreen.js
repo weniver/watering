@@ -7,6 +7,7 @@ import FormTextInput from "../components/TextInputNoState.js";
 import { TouchableOpacity } from "react-native-gesture-handler";
 import { connect } from "react-redux";
 import { handleSignIn } from "../store/actions/auth.js";
+import {errorMessage} from "../helpers/firebaseHelpers.js"
 
 const LoginScreen = (props) => {
 const [serverSideError, setServerSideError] = useState(false);
@@ -17,11 +18,7 @@ const [serverSideError, setServerSideError] = useState(false);
         await props.handleSignIn(data.email.value, data.password.value);
       }
     } catch (e) {
-        if(e.code === "auth/invalid-email"){
-          setServerSideError("El usuario y/o la contraseña estan mal.")
-        } else {
-          setServerSideError("Por favor checa tus datos.")
-        }
+          setServerSideError(errorMessage(e))
     }
   };
 

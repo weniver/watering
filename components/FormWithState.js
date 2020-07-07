@@ -90,7 +90,6 @@ const Form = (props) => {
       const passwordRegexContainsNumber = /.*[0-9].*/;
 
       let errors = [];
-
       if (!inputProps.optional && text.trim().length === 0) {
         errors.push("This can't be blank.");
       }
@@ -164,7 +163,7 @@ const Form = (props) => {
         input: inputProps.id,
       });
     },
-    [dispatchFormState]
+    [formState, dispatchFormState]
   );
 
   return (
