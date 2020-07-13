@@ -5,6 +5,7 @@ import { createStackNavigator } from "@react-navigation/stack";
 import BottomTabNavigator from "./BottomTabNavigator";
 import LoginScreen from "../screens/LoginScreen.js";
 import SignUpScreen from "../screens/SignUpScreen.js";
+import PasswordRecoveryScreen from "../screens/PasswordRecoveryScreen.js";
 
 import { connect } from "react-redux";
 import { handleSignOut, getLocalUser } from "../store/actions/auth.js";
@@ -43,12 +44,17 @@ const MainNavigation = (props) => {
             <Stack.Screen
               name="Login"
               component={LoginScreen}
-              options={{ headerShown: false, animationEnabled: false }}
+              options={{ headerShown: false }}
             />
             <Stack.Screen
               name="SignUp"
               component={SignUpScreen}
               options={{ headerShown: false, animationEnabled: false }}
+            />
+            <Stack.Screen
+              name="PasswordRecovery"
+              component={PasswordRecoveryScreen}
+              options={{ title: "Reset your password" }}
             />
           </>
         )}

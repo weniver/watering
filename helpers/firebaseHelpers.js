@@ -19,6 +19,9 @@ export const errorMessage = (e) => {
     case "auth/email-already-in-use":
       errorMessage = "Tu email ya esta registrado, ¿olvidaste tu contraseña?";
       break;
+    case "auth/email-already-in-use":
+      errorMessage = "Tu email ya esta registrado, ¿olvidaste tu contraseña?";
+      break;
     default:
       errorMessage = "Algo salió mal por favor vuelve a intentarlo.";
       break;

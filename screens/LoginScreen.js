@@ -7,10 +7,10 @@ import FormTextInput from "../components/TextInputNoState.js";
 import { TouchableOpacity } from "react-native-gesture-handler";
 import { connect } from "react-redux";
 import { handleSignIn } from "../store/actions/auth.js";
-import {errorMessage} from "../helpers/firebaseHelpers.js"
+import { errorMessage } from "../helpers/firebaseHelpers.js";
 
 const LoginScreen = (props) => {
-const [serverSideError, setServerSideError] = useState(false);
+  const [serverSideError, setServerSideError] = useState(false);
 
   const handleSignIn = async (data) => {
     try {
@@ -18,7 +18,7 @@ const [serverSideError, setServerSideError] = useState(false);
         await props.handleSignIn(data.email.value, data.password.value);
       }
     } catch (e) {
-          setServerSideError(errorMessage(e))
+      setServerSideError(errorMessage(e));
     }
   };
 
@@ -44,6 +44,15 @@ const [serverSideError, setServerSideError] = useState(false);
       >
         <View style={styles.buttonContainer}>
           <Text style={styles.buttonText}>SignUp</Text>
+        </View>
+      </TouchableOpacity>
+      <TouchableOpacity
+        onPress={() => {
+          props.navigation.navigate("PasswordRecovery");
+        }}
+      >
+        <View style={styles.buttonContainer}>
+          <Text style={styles.buttonText}>Password Recovery</Text>
         </View>
       </TouchableOpacity>
     </View>
