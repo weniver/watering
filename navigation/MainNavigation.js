@@ -19,7 +19,7 @@ import SettingsScreen from "../screens/SettingsScreen.js";
 import PasswordRecoveryScreen from "../screens/PasswordRecoveryScreen.js";
 import TimePickerScreen from "../screens/TimePickerScreen.js";
 //Components
-
+import HeaderButton from "../components/HeaderButton.js";
 
 const Stack = createStackNavigator();
 
@@ -46,28 +46,21 @@ const MainNavigation = (props) => {
             <Stack.Screen
               name="Plants"
               component={PlantsScreen}
-              options={({navigation}) => ({
+              options={(props) => ({
                 headerTransparent: true,
                 headerTitle: "",
-                headerRight: () => (
-                  <View style={{ flex: 1, marginRight: 10 }}>
-                    <TouchableOpacity
-                      onPress={() => {
-                        navigation.navigate("Settings")
-                      }}
-                    >
-                      <Feather name="settings" size={30} color="black" />
-                    </TouchableOpacity>
-                  </View>
-                ),
+                headerRight: () => <HeaderButton {...props} />,
               })}
             />
-              <Stack.Screen
-                name="Settings"
-                component={SettingsScreen}
-                options={{
-                  headerTransparent: true,headerBackTitleVisible: false}}
-              />
+            <Stack.Screen
+              name="Settings"
+              component={SettingsScreen}
+              options={{
+                headerTransparent: true,
+                headerBackTitleVisible: false,
+                headerTintColor: "black",
+              }}
+            />
           </>
         ) : (
           <>
