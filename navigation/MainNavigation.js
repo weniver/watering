@@ -7,6 +7,7 @@ import LoginScreen from "../screens/LoginScreen.js";
 import SignUpScreen from "../screens/SignUpScreen.js";
 import PasswordRecoveryScreen from "../screens/PasswordRecoveryScreen.js";
 import TimePickerScreen from "../screens/TimePickerScreen.js";
+import { Button } from "react-native";
 
 import { connect } from "react-redux";
 import { handleSignOut, getLocalUser } from "../store/actions/auth.js";
@@ -25,28 +26,39 @@ const MainNavigation = (props) => {
     >
       <Stack.Navigator>
         {props.user ? (
-          <Stack.Screen
-            name="Root"
-            component={BottomTabNavigator}
-            options={{
-              title: "Template Info",
-              headerStyle: {
-                backgroundColor: "#000",
-              },
-              headerTitleAlign: "center",
-              headerTintColor: "#fff",
-              headerTitleStyle: {
-                fontWeight: "bold",
-              },
-            }}
-          />
+          <>
+            {props.settings.firstLogin && (
+              <Stack.Screen
+                name="SignUpTimePicker"
+                component={TimePickerScreen}
+                options={{ headerShown: false, animationEnabled: false }}
+              />
+            )}
+            <Stack.Screen
+              name="Root"
+              component={BottomTabNavigator}
+              options={{
+                title: "Template Info",
+                headerStyle: {
+                  backgroundColor: "#000",
+                },
+                headerTitleAlign: "center",
+                headerTintColor: "#fff",
+                headerTitleStyle: {
+                  fontWeight: "bold",
+                },
+                headerRight: () => (
+                  <Button
+                    onPress={() => console.log(props.settings)}
+                    title="Info"
+                    color="#fff"
+                  />
+                ),
+              }}
+            />
+          </>
         ) : (
           <>
-            <Stack.Screen
-              name="SignUpTimePicker"
-              component={TimePickerScreen}
-              options={{ headerShown: false, animationEnabled: false }}
-            />
             <Stack.Screen
               name="Login"
               component={LoginScreen}
@@ -71,6 +83,7 @@ const MainNavigation = (props) => {
 
 const mapStateToProps = (state) => ({
   user: state.auth.user,
+  settings: state.auth.settings,
 });
 
 export default connect(mapStateToProps, { handleSignOut, getLocalUser })(

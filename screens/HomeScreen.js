@@ -26,6 +26,14 @@ const HomeScreen = (props) => {
       >
         <Text>Sign Out</Text>
       </RectButton>
+        <RectButton
+          style={{...styles.button,backgroundColor: "red"}}
+          onPress={() => {
+            console.log(props)
+          }}
+        >
+          <Text>Props</Text>
+        </RectButton>
     </View>
   );
 }

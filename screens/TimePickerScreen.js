@@ -6,10 +6,13 @@ import moment from "moment";
 
 import { TouchableOpacity } from "react-native-gesture-handler";
 
+import { connect } from "react-redux";
+import { setWateringTime } from "../store/actions/auth.js";
+
 const TimePickerScreen = (props) => {
   const [date, setDate] = useState(new Date());
   const [showAndroid, setShowAndroid] = useState(false);
-  const [selectedTime, setSelectedTime] = useState(moment().format("LT"));
+  const [selectedTime, setSelectedTime] = useState(moment(date).format("LT"));
   const [modalVisible, setModalVisible] = useState(false);
 
   const onChange = (event, selectedDate) => {
@@ -27,7 +30,6 @@ const TimePickerScreen = (props) => {
           testID="dateTimePicker"
           value={date}
           mode="time"
-          is24Hour={true}
           onChange={onChange}
           display="spinner"
         />
@@ -45,7 +47,6 @@ const TimePickerScreen = (props) => {
             testID="dateTimePicker"
             value={date}
             mode="time"
-            is24Hour={true}
             onChange={onChange}
           />
           <TouchableOpacity
@@ -60,7 +61,7 @@ const TimePickerScreen = (props) => {
       </Modal>
 
       <Text style={styles.questionText}>
-        Place holder place holder place holder
+        ¿A qué hora sueles regar tus plantas?
       </Text>
       <TouchableOpacity
         onPress={() => {
@@ -76,7 +77,7 @@ const TimePickerScreen = (props) => {
 
       <TouchableOpacity
         onPress={() => {
-          console.log([date, selectedTime]);
+          props.setWateringTime(date)
         }}
       >
         <View style={styles.buttonContainer}>
@@ -140,4 +141,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default TimePickerScreen;
+export default connect(null, { setWateringTime })(TimePickerScreen);
