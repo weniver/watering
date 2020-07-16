@@ -1,16 +1,25 @@
+//React
 import React, { useEffect } from "react";
-
-import { NavigationContainer } from "@react-navigation/native";
-import { createStackNavigator } from "@react-navigation/stack";
-import BottomTabNavigator from "./BottomTabNavigator";
-import LoginScreen from "../screens/LoginScreen.js";
-import SignUpScreen from "../screens/SignUpScreen.js";
-import PasswordRecoveryScreen from "../screens/PasswordRecoveryScreen.js";
-import TimePickerScreen from "../screens/TimePickerScreen.js";
-import { Button } from "react-native";
-
+import { Button, View, Alert } from "react-native";
+//Redux
 import { connect } from "react-redux";
 import { handleSignOut, getLocalUser } from "../store/actions/auth.js";
+//Expo
+import { Feather } from "@expo/vector-icons";
+//ReactNavigation
+import { NavigationContainer } from "@react-navigation/native";
+import { createStackNavigator } from "@react-navigation/stack";
+//Libraries
+import { TouchableOpacity } from "react-native-gesture-handler";
+//Screens
+import LoginScreen from "../screens/LoginScreen.js";
+import SignUpScreen from "../screens/SignUpScreen.js";
+import PlantsScreen from "../screens/PlantsScreen.js";
+import SettingsScreen from "../screens/SettingsScreen.js";
+import PasswordRecoveryScreen from "../screens/PasswordRecoveryScreen.js";
+import TimePickerScreen from "../screens/TimePickerScreen.js";
+//Components
+
 
 const Stack = createStackNavigator();
 
@@ -35,27 +44,30 @@ const MainNavigation = (props) => {
               />
             )}
             <Stack.Screen
-              name="Root"
-              component={BottomTabNavigator}
-              options={{
-                title: "Template Info",
-                headerStyle: {
-                  backgroundColor: "#000",
-                },
-                headerTitleAlign: "center",
-                headerTintColor: "#fff",
-                headerTitleStyle: {
-                  fontWeight: "bold",
-                },
+              name="Plants"
+              component={PlantsScreen}
+              options={({navigation}) => ({
+                headerTransparent: true,
+                headerTitle: "",
                 headerRight: () => (
-                  <Button
-                    onPress={() => console.log(props.settings)}
-                    title="Info"
-                    color="#fff"
-                  />
+                  <View style={{ flex: 1, marginRight: 10 }}>
+                    <TouchableOpacity
+                      onPress={() => {
+                        navigation.navigate("Settings")
+                      }}
+                    >
+                      <Feather name="settings" size={30} color="black" />
+                    </TouchableOpacity>
+                  </View>
                 ),
-              }}
+              })}
             />
+              <Stack.Screen
+                name="Settings"
+                component={SettingsScreen}
+                options={{
+                  headerTransparent: true,headerBackTitleVisible: false}}
+              />
           </>
         ) : (
           <>
