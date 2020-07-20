@@ -14,29 +14,32 @@ import { RectButton } from "react-native-gesture-handler";
 
 import { connect } from "react-redux";
 import { handleSignOut } from "../store/actions/auth.js";
+import { useDimensions } from '@react-native-community/hooks'
+
 
 const HomeScreen = (props) => {
+const { width, height } = useDimensions().window
   return (
     <View style={styles.container}>
       <RectButton
         style={styles.button}
         onPress={() => {
-          props.handleSignOut()
+          props.handleSignOut();
         }}
       >
         <Text>Sign Out</Text>
       </RectButton>
-        <RectButton
-          style={{...styles.button,backgroundColor: "red"}}
-          onPress={() => {
-            console.log(props)
-          }}
-        >
-          <Text>Props</Text>
-        </RectButton>
+      <RectButton
+        style={{ ...styles.button, backgroundColor: "red" }}
+        onPress={() => {
+          console.log(props);
+        }}
+      >
+        <Text>Props</Text>
+      </RectButton>
     </View>
   );
-}
+};
 
 export default connect(null, { handleSignOut })(HomeScreen);
 
