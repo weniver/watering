@@ -18,6 +18,7 @@ import PlantsScreen from "../screens/PlantsScreen.js";
 import SettingsScreen from "../screens/SettingsScreen.js";
 import PasswordRecoveryScreen from "../screens/PasswordRecoveryScreen.js";
 import TimePickerScreen from "../screens/TimePickerScreen.js";
+import NewPlantScreen from "../screens/NewPlantScreen.js";
 //Components
 import HeaderButton from "../components/HeaderButton.js";
 
@@ -55,6 +56,15 @@ const MainNavigation = (props) => {
             <Stack.Screen
               name="Settings"
               component={SettingsScreen}
+              options={{
+                headerTransparent: true,
+                headerBackTitleVisible: false,
+                headerTintColor: "black",
+              }}
+            />
+            <Stack.Screen
+              name="Add Plant"
+              component={NewPlantScreen}
               options={{
                 headerTransparent: true,
                 headerBackTitleVisible: false,

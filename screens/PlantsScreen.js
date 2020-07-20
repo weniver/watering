@@ -54,7 +54,7 @@ const PlantsScreen = (props) => {
         <View style={styles.button}>
           <RectButton
             onPress={() => {
-              setCount([...count, ""]);
+              props.navigation.navigate("Add Plant")
             }}
             style={{
               width: "100%",
