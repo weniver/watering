@@ -50,11 +50,12 @@ const PlantsScreen = (props) => {
 
   return (
     <View style={{ flex: 1, backgroundColor: "#fff" }}>
+      <Text style={{ paddingTop: 50 }}>{JSON.stringify(props.plants)}</Text>
       <View style={styles.buttonContainer}>
         <View style={styles.button}>
           <RectButton
             onPress={() => {
-              props.navigation.navigate("Add Plant")
+              props.navigation.navigate("Add Plant");
             }}
             style={{
               width: "100%",
@@ -74,6 +75,8 @@ const PlantsScreen = (props) => {
   );
 };
 
-const mapStateToProps = (state) => ({});
+const mapStateToProps = (state) => ({
+  plants: state.plants,
+});
 
 export default connect(mapStateToProps, {})(PlantsScreen);

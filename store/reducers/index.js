@@ -1,5 +1,5 @@
 import { combineReducers } from "redux";
-import counterReducer from "./counterReducer.js";
 import authReducer from "./authReducer.js";
+import plantsReducer from "./plantsReducer.js";
 
-export default combineReducers({ counter: counterReducer, auth: authReducer });
+export default combineReducers({ auth: authReducer, plants: plantsReducer });

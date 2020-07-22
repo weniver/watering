@@ -63,7 +63,7 @@ export const handleSignUp = (email, password) => async (dispatch) => {
 export const setWateringTime = (date) => async (dispatch, getState) => {
   try {
     let userId = getState().auth.user.uid;
-    let dateString = JSON.stringify(date)
+    let dateString = JSON.stringify(date);
     let updatedSettings = { firstLogin: false, wateringTime: dateString };
     let doc = await db.collection("settings").doc(userId);
     await doc.update(updatedSettings);

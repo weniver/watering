@@ -58,7 +58,7 @@ const Form = (props) => {
         if (inputElement.props.id) {
           let key = inputElement.props.id;
           inputs[key] = {
-            value: inputElement.props.initialValue ||"",
+            value: inputElement.props.initialValue || "",
             errors: [],
             type: inputElement.props.type,
             optional: inputElement.props.optional ?? false,
@@ -134,13 +134,7 @@ const Form = (props) => {
 
   //Use Form props to pass a onSubmitHandler to handle data once is validated.
   const onFormSubmit = () => {
-    console.log(formState);
-    // let formIsValid = isFormValid();
-    // if (formIsValid) {
-    //   props.onFormSubmit(formState);
-    // } else {
-    //   props.onFormSubmit(formState);
-    // }
+    props.onFormSubmit(formState);
   };
 
   //Helper to check all form inputs validities and overall form validity on submit
