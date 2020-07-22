@@ -6,10 +6,15 @@ import { connect } from "react-redux";
 import Colors from "../constants/Colors";
 import { useDimensions } from "@react-native-community/hooks";
 import { Feather } from "@expo/vector-icons";
+import { getPlants } from "../store/actions/plants.js";
 
 const PlantsScreen = (props) => {
   const { width, height } = useDimensions().window;
   const [count, setCount] = useState([]);
+
+  useEffect(() => {
+    props.getPlants();
+  }, []);
 
   const styles = StyleSheet.create({
     plantsContainer: {
@@ -41,16 +46,26 @@ const PlantsScreen = (props) => {
   });
 
   const renderPlants = () => {
-    return count.map((e, i) => (
-      <View style={styles.plantContainer} key={i}>
-        <Feather name="target" size={width / 3} color="black" />
-      </View>
+    return props.plants.map((plant, i) => (
+      <RectButton
+        onPress={() => {
+          props.navigation.navigate("Plant", plant);
+        }}
+        key={i}
+      >
+        <View style={styles.plantContainer}>
+          <Feather name="target" size={width / 5} color="black" />
+          <Text>{plant.name}</Text>
+          <Text>{plant.timePeriod}</Text>
+          <Text>{plant.user}</Text>
+          <Text>{plant.id}</Text>
+        </View>
+      </RectButton>
     ));
   };
 
   return (
     <View style={{ flex: 1, backgroundColor: "#fff" }}>
-      <Text style={{ paddingTop: 50 }}>{JSON.stringify(props.plants)}</Text>
       <View style={styles.buttonContainer}>
         <View style={styles.button}>
           <RectButton
@@ -79,4 +94,4 @@ const mapStateToProps = (state) => ({
   plants: state.plants,
 });
 
-export default connect(mapStateToProps, {})(PlantsScreen);
+export default connect(mapStateToProps, { getPlants })(PlantsScreen);

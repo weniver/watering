@@ -6,4 +6,4 @@ export const SET_SETTINGS = "SET_SETTINGS"
 export const CREATE_PLANT = "CREATE_PLANT";
 export const EDIT_PLANT = "EDIT_PLANT";
 export const DELETE_PLANT = "DELETE_PLANT";
-export const GET_PLANTS = "GET_PLANTS";
+export const SET_PLANTS = "SET_PLANTS";
