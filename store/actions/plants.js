@@ -1,15 +1,23 @@
 import { CREATE_PLANT, EDIT_PLANT, DELETE_PLANT, SET_PLANTS } from "./types.js";
 import { db, auth } from "../../config/firebase.js";
+import moment from "moment";
+import _ from "lodash"
 
 export const createPlant = (timePeriod, name = "") => async (
   dispatch,
   getState
 ) => {
   try {
-    let plant = { timePeriod, name };
     let userId = getState().auth.user.uid;
-    plant.user = userId;
-    plant.active = true;
+    let birthday = new Date();
+    let plant = {
+      timePeriod,
+      name,
+      birthday,
+      user: userId,
+      active: true,
+      wateringHistory: [birthday],
+    };
     let doc = await db.collection("plants").doc();
     await doc.set(plant);
     plant.id = doc.id;
@@ -44,6 +52,16 @@ export const getPlants = () => async (dispatch, getState) => {
 };
 
 export const deactivatePlant = (plantId) => async (dispatch) => {
+  try {
+    let plantsRef = await db.collection("plants").doc(plantId);
+    await plantsRef.update({ active: false });
+    dispatch({ type: DELETE_PLANT, payload: plantId });
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+export const addWateringTime = (lastDate) => async (dispatch) => {
   try {
     let plantsRef = await db.collection("plants").doc(plantId);
     await plantsRef.update({ active: false });

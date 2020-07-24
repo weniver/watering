@@ -6,12 +6,17 @@ import { connect } from "react-redux";
 import Colors from "../constants/Colors";
 import { useDimensions } from "@react-native-community/hooks";
 import { Feather } from "@expo/vector-icons";
-import { deactivatePlant} from "../store/actions/plants.js";
+import { deactivatePlant } from "../store/actions/plants.js";
+import moment from "moment";
 
+import { db, auth } from "../config/firebase.js";
 const PlantScreen = (props) => {
   const { width, height } = useDimensions().window;
-  const [count, setCount] = useState([]);
-  const plant = props.route.params;
+  const [count, setCount] = useState(0);
+  const plantQueryDoc = props.route.params;
+  const plantRef = plantQueryDoc.ref
+  const plantID = plantQueryDoc.id
+  const plant = plantQueryDoc.data()
 
   useEffect(() => {
     props.navigation.setOptions({ title: plant.name });
@@ -21,25 +26,24 @@ const PlantScreen = (props) => {
     infoContainer: {
       height: height,
       backgroundColor: "#fff",
-      alignItems: "center",
       justifyContent: "center",
+      flexDirection: "column",
+      paddingLeft: 20,
     },
     button: {
       height: 50,
       width: "75%",
-      backgroundColor: "red",
       alignItems: "center",
       justifyContent: "center",
     },
     buttonText: {
       fontWeight: "bold",
       color: "white",
-      backgroundColor: "red",
       alignItems: "center",
       justifyContent: "center",
       textTransform: "uppercase",
     },
-    deleteButtonContainer: {
+    buttonContainer: {
       height: 150,
       backgroundColor: "white",
       alignItems: "center",
@@ -63,25 +67,65 @@ const PlantScreen = (props) => {
 
   const handleDigUp = async () => {
     try {
-      console.log(plant.id)
       await props.deactivatePlant(plant.id);
-      props.navigation.navigate("Plants")
+      props.navigation.navigate("Plants");
     } catch (e) {
-      console.log(e)
+      console.log(e);
     }
+  };
+
+  const handleWatering = async () => {
+    try {
+      await plantRef.update({name:"ADIOS"})
+      setCount(count+1)
+    } catch (e) {
+      console.log(e);
+    }
+  };
+
+  const renderObject = (plant) => {
+    let info = [];
+    let counter = 1
+    for (const property in plant) {
+      info = [
+        ...info,
+        <View key={counter}style={{ flexDirection: "row" }}>
+          <Text style={{ fontWeight: "bold" }}>{`${property}:`}</Text>
+          <Text>{` ${JSON.stringify(plant[property])}`}</Text>
+        </View>,
+      ];
+      counter++
+    }
+    return info.map((a) => {
+      return a;
+    });
   };
 
   return (
     <View>
       <ScrollView>
         <View style={styles.infoContainer}>
-          <Text>{plant.name}</Text>
-          <Text>{plant.timePeriod}</Text>
-          <Text>{plant.user}</Text>
-          <Text>{plant.id}</Text>
+          {renderObject(plant)}
+          <View style={styles.buttonContainer}>
+            <View style={{ ...styles.button, backgroundColor: "blue" }}>
+              <RectButton
+                onPress={() => {
+                  handleWatering();
+                }}
+                style={{
+                  width: "100%",
+                  height: "100%",
+                  alignItems: "center",
+                  justifyContent: "center",
+                }}
+              >
+                <Text style={styles.buttonText}>regar</Text>
+              </RectButton>
+            </View>
+          </View>
         </View>
-        <View style={styles.deleteButtonContainer}>
-          <View style={styles.button}>
+        <View style={styles.buttonContainer}>
+          <View style={{ ...styles.button, backgroundColor: "red" }}>
             <RectButton
               onPress={() => {
                 digUpAlert();

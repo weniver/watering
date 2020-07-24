@@ -7,13 +7,35 @@ import Colors from "../constants/Colors";
 import { useDimensions } from "@react-native-community/hooks";
 import { Feather } from "@expo/vector-icons";
 import { getPlants } from "../store/actions/plants.js";
+import { db, auth } from "../config/firebase.js";
 
 const PlantsScreen = (props) => {
   const { width, height } = useDimensions().window;
-  const [count, setCount] = useState([]);
+  const [plants, setPlants] = useState([]);
 
   useEffect(() => {
     props.getPlants();
+  }, []);
+
+  useEffect(() => {
+    let userPlantsQuery = db
+      .collection("plants")
+      .where("user", "==", `${props.userID}`)
+      .where("active", "==", true);
+
+    let unsubscribe = userPlantsQuery.onSnapshot(
+      (querySnapshot) => {
+        let rawDocs = querySnapshot.docs;
+        setPlants(rawDocs);
+      },
+      (e) => {
+        console.log(e.message);
+        props.setError(e);
+      }
+    );
+    return () => {
+      unsubscribe();
+    };
   }, []);
 
   const styles = StyleSheet.create({
@@ -46,22 +68,25 @@ const PlantsScreen = (props) => {
   });
 
   const renderPlants = () => {
-    return props.plants.map((plant, i) => (
-      <RectButton
-        onPress={() => {
-          props.navigation.navigate("Plant", plant);
-        }}
-        key={i}
-      >
-        <View style={styles.plantContainer}>
-          <Feather name="target" size={width / 5} color="black" />
-          <Text>{plant.name}</Text>
-          <Text>{plant.timePeriod}</Text>
-          <Text>{plant.user}</Text>
-          <Text>{plant.id}</Text>
-        </View>
-      </RectButton>
-    ));
+    return plants.map((plant, i) => {
+      const { name, timePeriod, user } = plant.data();
+      return (
+        <RectButton
+          onPress={() => {
+            props.navigation.navigate("Plant", plant);
+          }}
+          key={i}
+        >
+          <View style={styles.plantContainer}>
+            <Feather name="target" size={width / 5} color="black" />
+            <Text>{name}</Text>
+            <Text>{timePeriod}</Text>
+            <Text>{user}</Text>
+            <Text>{plant.id}</Text>
+          </View>
+        </RectButton>
+      );
+    });
   };
 
   return (
@@ -70,7 +95,7 @@ const PlantsScreen = (props) => {
         <View style={styles.button}>
           <RectButton
             onPress={() => {
-              props.navigation.navigate("Add Plant");
+              console.log(plants[0].data());
             }}
             style={{
               width: "100%",
@@ -92,6 +117,7 @@ const PlantsScreen = (props) => {
 
 const mapStateToProps = (state) => ({
   plants: state.plants,
+  userID: state.auth.user.uid,
 });
 
 export default connect(mapStateToProps, { getPlants })(PlantsScreen);
