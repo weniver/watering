@@ -12,14 +12,28 @@ import moment from "moment";
 import { db, auth } from "../config/firebase.js";
 const PlantScreen = (props) => {
   const { width, height } = useDimensions().window;
-  const [count, setCount] = useState(0);
   const plantQueryDoc = props.route.params;
-  const plantRef = plantQueryDoc.ref
-  const plantID = plantQueryDoc.id
-  const plant = plantQueryDoc.data()
+  const plantRef = plantQueryDoc.ref;
+  const plantID = plantQueryDoc.id;
+  const [plant, setPlant] = useState(plantQueryDoc.data());
 
   useEffect(() => {
     props.navigation.setOptions({ title: plant.name });
+  }, [plant]);
+
+  useEffect(() => {
+    let unsubscribe = plantRef.onSnapshot(
+      (docSnapshot) => {
+        let data = docSnapshot.data();
+        setPlant(data);
+      },
+      (e) => {
+        console.log(e.message);
+      }
+    );
+    return () => {
+      unsubscribe();
+    };
   }, []);
 
   const styles = StyleSheet.create({
@@ -76,8 +90,7 @@ const PlantScreen = (props) => {
 
   const handleWatering = async () => {
     try {
-      await plantRef.update({name:"ADIOS"})
-      setCount(count+1)
+      await plantRef.update({ name: "UPDATE" });
     } catch (e) {
       console.log(e);
     }
@@ -85,16 +98,16 @@ const PlantScreen = (props) => {
 
   const renderObject = (plant) => {
     let info = [];
-    let counter = 1
+    let counter = 1;
     for (const property in plant) {
       info = [
         ...info,
-        <View key={counter}style={{ flexDirection: "row" }}>
+        <View key={counter} style={{ flexDirection: "row" }}>
           <Text style={{ fontWeight: "bold" }}>{`${property}:`}</Text>
           <Text>{` ${JSON.stringify(plant[property])}`}</Text>
         </View>,
       ];
-      counter++
+      counter++;
     }
     return info.map((a) => {
       return a;
@@ -146,4 +159,4 @@ const PlantScreen = (props) => {
   );
 };
 
-export default connect(null, { deactivatePlant })(PlantScreen);
+export default PlantScreen;
