@@ -7,8 +7,9 @@ import WaterSlider from "../components/WaterSlider.js";
 import { useHeaderHeight } from "@react-navigation/stack";
 import { createPlant } from "../store/actions/plants.js";
 import { connect } from "react-redux";
+import { db } from "../config/firebase.js";
 
-const NewPlantScreen = (props) => {
+const NewPlantScreen = ({ navigation, userID }) => {
   const [value, setValue] = useState(0);
   const { width, height } = useDimensions().window;
   const [serverSideError, setServerSideError] = useState(false);
@@ -32,13 +33,29 @@ const NewPlantScreen = (props) => {
     daysText: { fontSize: 40, fontWeight: "bold", marginVertical: 10 },
   });
 
-  const handleCreatePlant = async (data) => {
+  const createPlant = async (interval, name = "") => {
     try {
-      await props.createPlant(data.slider.value, data.name.value);
-      props.navigation.navigate("Plants")
+      let birthday = new Date().getTime();
+      let plant = {
+        interval,
+        name,
+        birthday,
+        user: userID,
+        active: true,
+        wateringHistory: [birthday],
+      };
+      await db.collection("plants").doc().set(plant);
     } catch (e) {
       console.log(e);
-    } finally {
+    }
+  };
+
+  const handleCreatePlant = async (data) => {
+    try {
+      await createPlant(data.slider.value, data.name.value);
+      navigation.navigate("Plants");
+    } catch (e) {
+      console.log(e);
     }
   };
 
@@ -67,4 +84,8 @@ const NewPlantScreen = (props) => {
   );
 };
 
-export default connect(null, { createPlant })(NewPlantScreen);
+const mapStateToProps = (state) => ({
+  userID: state.auth.user.uid,
+});
+
+export default connect(mapStateToProps)(NewPlantScreen);

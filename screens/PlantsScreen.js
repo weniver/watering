@@ -63,23 +63,23 @@ const PlantsScreen = ({ navigation, userID }) => {
 
   const renderPlants = () => {
     return plantsDocs.map((plantDoc, i) => {
-      const { name, timePeriod, user } = plantDoc.data();
+      const plantData = plantDoc.data();
       const plantId = plantDoc.id;
       return (
         <RectButton
           onPress={() => {
             navigation.navigate("Plant", {
               plantId,
-              initialData: { name, timePeriod, user },
+              initialData: plantData,
             });
           }}
           key={i}
         >
           <View style={styles.plantContainer}>
             <Feather name="target" size={width / 5} color="black" />
-            <Text>{name}</Text>
-            <Text>{timePeriod}</Text>
-            <Text>{user}</Text>
+            <Text>{plantData.name}</Text>
+            <Text>{plantData.interval}</Text>
+            <Text>{plantData.user}</Text>
             <Text>{plantId}</Text>
           </View>
         </RectButton>
