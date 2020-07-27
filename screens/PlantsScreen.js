@@ -1,5 +1,5 @@
 import { Ionicons } from "@expo/vector-icons";
-import React, { useEffect, useState, useCallback, useReducer } from "react";
+import React, { useEffect, useState } from "react";
 import { StyleSheet, Text, View } from "react-native";
 import { RectButton, ScrollView } from "react-native-gesture-handler";
 import { connect } from "react-redux";
@@ -9,34 +9,28 @@ import { Feather } from "@expo/vector-icons";
 import { getPlants } from "../store/actions/plants.js";
 import { db, auth } from "../config/firebase.js";
 
-const PlantsScreen = (props) => {
+const PlantsScreen = ({ navigation, userID }) => {
   const { width, height } = useDimensions().window;
   const [plantsDocs, setPlantsDocs] = useState([]);
 
   useEffect(() => {
-    props.getPlants();
-  }, []);
-
-  useEffect(() => {
     let userPlantsQuery = db
       .collection("plants")
-      .where("user", "==", `${props.userID}`)
+      .where("user", "==", userID)
       .where("active", "==", true);
 
     let unsubscribe = userPlantsQuery.onSnapshot(
       (querySnapshot) => {
-        let rawDocs = querySnapshot.docs;
-        setPlantsDocs(rawDocs);
+        setPlantsDocs(querySnapshot.docs);
       },
       (e) => {
         console.log(e.message);
-        props.setError(e);
       }
     );
     return () => {
       unsubscribe();
     };
-  }, []);
+  }, [db, userID]);
 
   const styles = StyleSheet.create({
     plantsContainer: {
@@ -74,7 +68,7 @@ const PlantsScreen = (props) => {
       return (
         <RectButton
           onPress={() => {
-            props.navigation.navigate("Plant", {
+            navigation.navigate("Plant", {
               plantId,
               initialData: { name, timePeriod, user },
             });
@@ -99,7 +93,7 @@ const PlantsScreen = (props) => {
         <View style={styles.button}>
           <RectButton
             onPress={() => {
-              console.log(plants[0].data());
+              navigation.navigate("NewPlant");
             }}
             style={{
               width: "100%",
@@ -120,8 +114,7 @@ const PlantsScreen = (props) => {
 };
 
 const mapStateToProps = (state) => ({
-  plants: state.plants,
   userID: state.auth.user.uid,
 });
 
-export default connect(mapStateToProps, { getPlants })(PlantsScreen);
+export default connect(mapStateToProps)(PlantsScreen);

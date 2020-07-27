@@ -19,6 +19,7 @@ const PlantScreen = (props) => {
   useEffect(() => {
     let plantDocRef = db.collection("plants").doc(plantId);
     setPlantDocRef(plantDocRef);
+
     let unsubscribe = plantDocRef.onSnapshot(
       (docSnapshot) => {
         let data = docSnapshot.data();
@@ -31,7 +32,7 @@ const PlantScreen = (props) => {
     return () => {
       unsubscribe();
     };
-  }, [plantId,db]);
+  }, [plantId, db]);
 
   const styles = StyleSheet.create({
     infoContainer: {

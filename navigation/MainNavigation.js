@@ -64,7 +64,7 @@ const MainNavigation = (props) => {
               }}
             />
             <Stack.Screen
-              name="Add Plant"
+              name="NewPlant"
               component={NewPlantScreen}
               options={{
                 headerTransparent: true,
