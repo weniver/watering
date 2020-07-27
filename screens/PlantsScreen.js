@@ -11,7 +11,7 @@ import { db, auth } from "../config/firebase.js";
 
 const PlantsScreen = (props) => {
   const { width, height } = useDimensions().window;
-  const [plants, setPlants] = useState([]);
+  const [plantsDocs, setPlantsDocs] = useState([]);
 
   useEffect(() => {
     props.getPlants();
@@ -26,7 +26,7 @@ const PlantsScreen = (props) => {
     let unsubscribe = userPlantsQuery.onSnapshot(
       (querySnapshot) => {
         let rawDocs = querySnapshot.docs;
-        setPlants(rawDocs);
+        setPlantsDocs(rawDocs);
       },
       (e) => {
         console.log(e.message);
@@ -68,12 +68,16 @@ const PlantsScreen = (props) => {
   });
 
   const renderPlants = () => {
-    return plants.map((plant, i) => {
-      const { name, timePeriod, user } = plant.data();
+    return plantsDocs.map((plantDoc, i) => {
+      const { name, timePeriod, user } = plantDoc.data();
+      const plantId = plantDoc.id;
       return (
         <RectButton
           onPress={() => {
-            props.navigation.navigate("Plant", plant);
+            props.navigation.navigate("Plant", {
+              plantId,
+              initialData: { name, timePeriod, user },
+            });
           }}
           key={i}
         >
@@ -82,7 +86,7 @@ const PlantsScreen = (props) => {
             <Text>{name}</Text>
             <Text>{timePeriod}</Text>
             <Text>{user}</Text>
-            <Text>{plant.id}</Text>
+            <Text>{plantId}</Text>
           </View>
         </RectButton>
       );

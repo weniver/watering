@@ -1,28 +1,25 @@
-import { Ionicons } from "@expo/vector-icons";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useLayoutEffect } from "react";
 import { StyleSheet, Text, View, Alert } from "react-native";
 import { RectButton, ScrollView } from "react-native-gesture-handler";
-import { connect } from "react-redux";
-import Colors from "../constants/Colors";
 import { useDimensions } from "@react-native-community/hooks";
-import { Feather } from "@expo/vector-icons";
-import { deactivatePlant } from "../store/actions/plants.js";
 import moment from "moment";
+import { db } from "../config/firebase.js";
 
-import { db, auth } from "../config/firebase.js";
 const PlantScreen = (props) => {
   const { width, height } = useDimensions().window;
-  const plantQueryDoc = props.route.params;
-  const plantRef = plantQueryDoc.ref;
-  const plantID = plantQueryDoc.id;
-  const [plant, setPlant] = useState(plantQueryDoc.data());
+  const { plantId } = props.route.params;
+  const [plant, setPlant] = useState(props.route.params.initialData);
+  const [plantDocRef, setPlantDocRef] = useState();
+  const { navigation } = props;
+
+  useLayoutEffect(() => {
+    navigation.setOptions({ title: plant.name });
+  }, [plant, navigation]);
 
   useEffect(() => {
-    props.navigation.setOptions({ title: plant.name });
-  }, [plant]);
-
-  useEffect(() => {
-    let unsubscribe = plantRef.onSnapshot(
+    let plantDocRef = db.collection("plants").doc(plantId);
+    setPlantDocRef(plantDocRef);
+    let unsubscribe = plantDocRef.onSnapshot(
       (docSnapshot) => {
         let data = docSnapshot.data();
         setPlant(data);
@@ -34,7 +31,7 @@ const PlantScreen = (props) => {
     return () => {
       unsubscribe();
     };
-  }, []);
+  }, [plantId,db]);
 
   const styles = StyleSheet.create({
     infoContainer: {
@@ -82,7 +79,7 @@ const PlantScreen = (props) => {
   const handleDigUp = async () => {
     try {
       await props.deactivatePlant(plant.id);
-      props.navigation.navigate("Plants");
+      navigation.navigate("Plants");
     } catch (e) {
       console.log(e);
     }
@@ -90,7 +87,7 @@ const PlantScreen = (props) => {
 
   const handleWatering = async () => {
     try {
-      await plantRef.update({ name: "UPDATE" });
+      await plantDocRef.update({ name: "HOLA" });
     } catch (e) {
       console.log(e);
     }
