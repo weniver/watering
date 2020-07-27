@@ -9,7 +9,7 @@ const PlantScreen = (props) => {
   const { width, height } = useDimensions().window;
   const { plantId } = props.route.params;
   const [plant, setPlant] = useState(props.route.params.initialData);
-  const [plantDocRef, setPlantDocRef] = useState();
+  const [plantDocRef, setPlantDocRef] = useState("");
   const { navigation } = props;
 
   useLayoutEffect(() => {
@@ -79,7 +79,7 @@ const PlantScreen = (props) => {
 
   const handleDigUp = async () => {
     try {
-      await props.deactivatePlant(plant.id);
+      await plantDocRef.update({ active: false });
       navigation.navigate("Plants");
     } catch (e) {
       console.log(e);
