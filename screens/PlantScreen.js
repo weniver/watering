@@ -15,9 +15,8 @@ const PlantScreen = (props) => {
   const [plantDocRef, setPlantDocRef] = useState("");
   const { navigation } = props;
   const [dates, setDates] = useState({
-    ageInDays: "",
-    lastWatering: "",
-    mSecondsToWater: 0,
+    lastWateringMoment: moment(),
+    nextWateringMoment: moment(),
   });
 
   useLayoutEffect(() => {
@@ -44,16 +43,16 @@ const PlantScreen = (props) => {
   }, [plantId, db]);
 
   useEffect(() => {
-    handleDates();
-  }, [plant.ageInDays, plant.lastWatering]);
+    createWateringMoments();
+  }, [plant.wateringHistory]);
 
-  const handleDates = () => {
-    let ageInDays = moment().diff(moment(plant.birthday), "days");
-    let lastWatering = moment(_.last(plant.wateringHistory));
-    let nextWatering = moment(lastWatering).add(plant.interval, "days");
-    let mSecondsToWater = nextWatering.diff(lastWatering);
-    let mSecondsSinceWatered = lastWatering.diff(moment());
-    setDates({ ageInDays, mSecondsSinceWatered, mSecondsToWater });
+  const createWateringMoments = () => {
+    let lastWateringMoment = moment(_.last(plant.wateringHistory));
+    let nextWateringMoment = moment(lastWateringMoment).add(
+      plant.interval,
+      "days"
+    );
+    setDates({ lastWateringMoment, nextWateringMoment });
   };
 
   const styles = StyleSheet.create({
@@ -121,11 +120,17 @@ const PlantScreen = (props) => {
     }
   };
 
-  const handleWatering = async () => {
-    console.log(moment.duration(dates.mSecondsToWater).humanize())
-    // console.log(moment.duration(12205598).humanize());
-    // console.log(moment.duration(12205598).minutes());
-    // console.log(moment.duration(12205598).asMinutes() / 60);
+  const _handleWatering = async () => {
+    try {
+      let currentWateringTime = new Date().getTime();
+      let updatedWateringHistory = [
+        ...plant.wateringHistory,
+        currentWateringTime,
+      ];
+      await plantDocRef.update({ wateringHistory: updatedWateringHistory });
+    } catch (e) {
+      console.log(e);
+    }
   };
 
   const renderObject = (plant) => {
@@ -146,22 +151,26 @@ const PlantScreen = (props) => {
     });
   };
 
-  const createAgeString = () => {
-    return dates.ageInDays === 0 ? (
-      <Text>you planted me today</Text>
-    ) : (
-      <Text>{`you planted me ${dates.ageInDays} days ago`}</Text>
+  const _createAgeString = () => {
+    let timeFromBirthday = moment(plant.birthday).fromNow();
+    return <Text>{`you planted me ${timeFromBirthday}`}</Text>;
+  };
+
+  const _createLastWaterDateString = () => {
+    return (
+      <Text>{`you watered me ${dates.lastWateringMoment.fromNow()}`}</Text>
     );
   };
 
-  const createLastWaterDateString = () => {
-   let duration = moment.duration(dates.mSecondsSinceWatered).humanize()
-   return <Text>{`you watered me ${duration} ago`}</Text>
-  };
-
-  const createTimerString = () => {
-   let duration = moment.duration(dates.mSecondsToWater).humanize()
-   return <Text>{`water me in ${duration}`}</Text>
+  const _createTimerString = () => {
+    let timeFromWateringTimes = dates.nextWateringMoment.from(
+      dates.lastWateringMoment
+    );
+    if (dates.lastWateringMoment.isSameOrBefore(dates.nextWateringMoment)) {
+      return <Text>{`you need to water me ${timeFromWateringTimes}`}</Text>;
+    } else {
+      return <Text>{`I need water since ${timeFromWateringTimes}`}</Text>;
+    }
   };
 
   return (
@@ -173,16 +182,16 @@ const PlantScreen = (props) => {
               style={styles.plantImg}
               source={require("../assets/images/plantPlaceHolder.png")}
             />
-            {createAgeString()}
-            {createLastWaterDateString()}
-            {createTimerString()}
+            {_createAgeString()}
+            {_createLastWaterDateString()}
+            {_createTimerString()}
           </View>
           <View>{renderObject(plant)}</View>
           <View style={styles.buttonContainer}>
             <View style={{ ...styles.button, backgroundColor: "blue" }}>
               <RectButton
                 onPress={() => {
-                  handleWatering();
+                  _handleWatering();
                 }}
                 style={{
                   width: "100%",
