@@ -1,15 +1,16 @@
-import { Ionicons } from "@expo/vector-icons";
 import React, { useEffect, useState } from "react";
 import { StyleSheet, Text, View } from "react-native";
 import { RectButton, ScrollView } from "react-native-gesture-handler";
 import { connect } from "react-redux";
 import Colors from "../constants/Colors";
 import { useDimensions } from "@react-native-community/hooks";
-import { Feather } from "@expo/vector-icons";
 import { getPlants } from "../store/actions/plants.js";
 import { db, auth } from "../config/firebase.js";
+import _ from "lodash";
+import moment from "moment";
+import { Ionicons } from "@expo/vector-icons";
 
-const PlantsScreen = ({ navigation, userID }) => {
+const PlantsScreen = ({ navigation, userID, wateringTime }) => {
   const { width, height } = useDimensions().window;
   const [plantsDocs, setPlantsDocs] = useState([]);
 
@@ -31,6 +32,34 @@ const PlantsScreen = ({ navigation, userID }) => {
       unsubscribe();
     };
   }, [db, userID]);
+
+  const createWateringMoments = (wateringHistory, interval) => {
+    let lastWateringMoment = moment(_.last(wateringHistory));
+    let nextWateringMoment = moment(lastWateringMoment)
+      .add(interval, "days")
+      .hour(wateringTime.hour)
+      .minute(wateringTime.minute);
+    return [lastWateringMoment, nextWateringMoment];
+  };
+
+  const _createTimerString = (lastWateringMoment, nextWateringMoment) => {
+    let timeFromWateringTimes = nextWateringMoment.from(lastWateringMoment);
+    if (lastWateringMoment.isSameOrBefore(nextWateringMoment)) {
+      return (
+        <Text>
+          <Ionicons name="ios-water" size={16} color="black" />
+          {` me ${timeFromWateringTimes}`}
+        </Text>
+      );
+    } else {
+      return (
+        <Text>
+          {`I need `} <Ionicons name="ios-water" size={16} color="black" />
+          {` since ${timeFromWateringTimes}`}
+        </Text>
+      );
+    }
+  };
 
   const styles = StyleSheet.create({
     plantsContainer: {
@@ -65,6 +94,11 @@ const PlantsScreen = ({ navigation, userID }) => {
     return plantsDocs.map((plantDoc, i) => {
       const plantData = plantDoc.data();
       const plantId = plantDoc.id;
+      const [lastWateringMoment, nextWateringMoment] = createWateringMoments(
+        plantData.wateringHistory,
+        plantData.interval
+      );
+
       return (
         <RectButton
           onPress={() => {
@@ -76,11 +110,9 @@ const PlantsScreen = ({ navigation, userID }) => {
           key={i}
         >
           <View style={styles.plantContainer}>
-            <Feather name="target" size={width / 5} color="black" />
+            <Ionicons name="ios-leaf" size={width / 5} color="black" />
             <Text>{plantData.name}</Text>
-            <Text>{plantData.interval}</Text>
-            <Text>{plantData.user}</Text>
-            <Text>{plantId}</Text>
+            {_createTimerString(lastWateringMoment, nextWateringMoment)}
           </View>
         </RectButton>
       );
@@ -115,6 +147,7 @@ const PlantsScreen = ({ navigation, userID }) => {
 
 const mapStateToProps = (state) => ({
   userID: state.auth.user.uid,
+  wateringTime: state.auth.settings.wateringTime,
 });
 
 export default connect(mapStateToProps)(PlantsScreen);

@@ -1,6 +1,7 @@
 import { db, auth } from "../../config/firebase.js";
 import { AsyncStorage } from "react-native";
 import { SET_USER, FORGET_USER, SET_ERROR, SET_SETTINGS } from "./types.js";
+import moment from "moment";
 
 export const getLocalUser = () => async (dispatch) => {
   try {
@@ -63,8 +64,11 @@ export const handleSignUp = (email, password) => async (dispatch) => {
 export const setWateringTime = (date) => async (dispatch, getState) => {
   try {
     let userId = getState().auth.user.uid;
-    let dateString = JSON.stringify(date);
-    let updatedSettings = { firstLogin: false, wateringTime: dateString };
+    let selectedMoment = moment(date);
+    let updatedSettings = {
+      firstLogin: false,
+      wateringTime: { hour: selectedMoment.hour(), minute: selectedMoment.minute() },
+    };
     let doc = await db.collection("settings").doc(userId);
     await doc.update(updatedSettings);
     dispatch({ type: SET_SETTINGS, payload: updatedSettings });

@@ -6,6 +6,7 @@ import moment from "moment";
 import { db } from "../config/firebase.js";
 import { useHeaderHeight } from "@react-navigation/stack";
 import _ from "lodash";
+import { connect } from "react-redux";
 
 const PlantScreen = (props) => {
   const { width, height } = useDimensions().window;
@@ -48,10 +49,10 @@ const PlantScreen = (props) => {
 
   const createWateringMoments = () => {
     let lastWateringMoment = moment(_.last(plant.wateringHistory));
-    let nextWateringMoment = moment(lastWateringMoment).add(
-      plant.interval,
-      "days"
-    );
+    let nextWateringMoment = moment(lastWateringMoment)
+      .add(plant.interval, "days")
+      .hour(props.wateringTime.hour)
+      .minute(props.wateringTime.minute);
     setDates({ lastWateringMoment, nextWateringMoment });
   };
 
@@ -227,4 +228,8 @@ const PlantScreen = (props) => {
   );
 };
 
-export default PlantScreen;
+const mapStateToProps = (state) => ({
+  wateringTime: state.auth.settings.wateringTime,
+});
+
+export default connect(mapStateToProps)(PlantScreen);
