@@ -7,36 +7,38 @@ import { db } from "../config/firebase.js";
 import { useHeaderHeight } from "@react-navigation/stack";
 import _ from "lodash";
 import { connect } from "react-redux";
+import * as plant from "../helpers/plant.js";
 
-const PlantScreen = (props) => {
-  const { width, height } = useDimensions().window;
-  const headerHeight = useHeaderHeight();
-  const { plantId } = props.route.params;
-  const [plant, setPlant] = useState(props.route.params.initialData);
-  const [plantDocRef, setPlantDocRef] = useState("");
-  const { navigation } = props;
+const PlantScreen = ({ route, navigation, wateringTime }) => {
+  //Local States
+  const [plantData, setPlantData] = useState(route.params.initialData);
+  const [plantSnapshot, setPlantSnapshot] = useState(route.params.initialData);
   const [dates, setDates] = useState({
     lastWateringMoment: moment(),
     nextWateringMoment: moment(),
   });
+  //Props
+  const { plantId } = route.params;
+  const { width, height } = useDimensions().window;
+  const headerHeight = useHeaderHeight();
 
   useLayoutEffect(() => {
-    navigation.setOptions({ title: plant.name });
-  }, [plant, navigation]);
+    navigation.setOptions({ title: plantData.name });
+  }, [plantData, navigation]);
 
   useEffect(() => {
-    let plantDocRef = db.collection("plants").doc(plantId);
-    setPlantDocRef(plantDocRef);
-
-    let unsubscribe = plantDocRef.onSnapshot(
-      (docSnapshot) => {
-        let data = docSnapshot.data();
-        setPlant(data);
-      },
-      (e) => {
-        console.log(e.message);
-      }
-    );
+    let unsubscribe = db
+      .collection("plants")
+      .doc(plantId)
+      .onSnapshot(
+        (docSnapshot) => {
+          setPlantSnapshot(docSnapshot);
+          setPlantData(docSnapshot.data());
+        },
+        (e) => {
+          console.log(e.message);
+        }
+      );
 
     return () => {
       unsubscribe();
@@ -44,17 +46,16 @@ const PlantScreen = (props) => {
   }, [plantId, db]);
 
   useEffect(() => {
-    createWateringMoments();
-  }, [plant.wateringHistory]);
-
-  const createWateringMoments = () => {
-    let lastWateringMoment = moment(_.last(plant.wateringHistory));
-    let nextWateringMoment = moment(lastWateringMoment)
-      .add(plant.interval, "days")
-      .hour(props.wateringTime.hour)
-      .minute(props.wateringTime.minute);
+    let lastWateringMoment = plant.getLastWateringMoment(
+      plantData.wateringHistory
+    );
+    let nextWateringMoment = plant.getNextWateringMoment(
+      lastWateringMoment,
+      wateringTime,
+      plantData.interval
+    );
     setDates({ lastWateringMoment, nextWateringMoment });
-  };
+  }, [plantData.wateringHistory]);
 
   const styles = StyleSheet.create({
     infoContainer: {
@@ -107,14 +108,14 @@ const PlantScreen = (props) => {
           text: "No",
           style: "cancel",
         },
-        { text: "Desenterrar", onPress: () => handleDigUp() },
+        { text: "Desenterrar", onPress: () => _handleDigUp() },
       ]
     );
   };
 
-  const handleDigUp = async () => {
+  const _handleDigUp = async () => {
     try {
-      await plantDocRef.update({ active: false });
+      await plant.digUp(plantSnapshot);
       navigation.navigate("Plants");
     } catch (e) {
       console.log(e);
@@ -123,37 +124,14 @@ const PlantScreen = (props) => {
 
   const _handleWatering = async () => {
     try {
-      let currentWateringTime = new Date().getTime();
-      let updatedWateringHistory = [
-        ...plant.wateringHistory,
-        currentWateringTime,
-      ];
-      await plantDocRef.update({ wateringHistory: updatedWateringHistory });
+      await plant.water(plantSnapshot);
     } catch (e) {
       console.log(e);
     }
   };
 
-  const renderObject = (plant) => {
-    let info = [];
-    let counter = 1;
-    for (const property in plant) {
-      info = [
-        ...info,
-        <View key={counter} style={{ flexDirection: "row" }}>
-          <Text style={{ fontWeight: "bold" }}>{`${property}:`}</Text>
-          <Text>{` ${JSON.stringify(plant[property])}`}</Text>
-        </View>,
-      ];
-      counter++;
-    }
-    return info.map((a) => {
-      return a;
-    });
-  };
-
   const _createAgeString = () => {
-    let timeFromBirthday = moment(plant.birthday).fromNow();
+    let timeFromBirthday = moment(plantData.birthday).fromNow();
     return <Text>{`you planted me ${timeFromBirthday}`}</Text>;
   };
 
@@ -187,7 +165,7 @@ const PlantScreen = (props) => {
             {_createLastWaterDateString()}
             {_createTimerString()}
           </View>
-          <View>{renderObject(plant)}</View>
+          <View>{plant.renderValueKeys(plantData)}</View>
           <View style={styles.buttonContainer}>
             <View style={{ ...styles.button, backgroundColor: "blue" }}>
               <RectButton

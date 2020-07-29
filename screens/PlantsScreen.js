@@ -1,14 +1,19 @@
+//Base
 import React, { useEffect, useState } from "react";
-import { StyleSheet, Text, View } from "react-native";
-import { RectButton, ScrollView } from "react-native-gesture-handler";
+import { StyleSheet, Text, View, TouchableOpacity } from "react-native";
+//Redux
 import { connect } from "react-redux";
-import Colors from "../constants/Colors";
+//React Native/Expo Libraries
+import { RectButton, ScrollView } from "react-native-gesture-handler";
+import { Ionicons, FontAwesome5 } from "@expo/vector-icons";
 import { useDimensions } from "@react-native-community/hooks";
-import { getPlants } from "../store/actions/plants.js";
-import { db, auth } from "../config/firebase.js";
+//Libraries
 import _ from "lodash";
 import moment from "moment";
-import { Ionicons } from "@expo/vector-icons";
+//Watering
+import Colors from "../constants/Colors";
+import { db, auth } from "../config/firebase.js";
+import * as plant from "../helpers/plant.js";
 
 const PlantsScreen = ({ navigation, userID, wateringTime }) => {
   const { width, height } = useDimensions().window;
@@ -32,15 +37,6 @@ const PlantsScreen = ({ navigation, userID, wateringTime }) => {
       unsubscribe();
     };
   }, [db, userID]);
-
-  const createWateringMoments = (wateringHistory, interval) => {
-    let lastWateringMoment = moment(_.last(wateringHistory));
-    let nextWateringMoment = moment(lastWateringMoment)
-      .add(interval, "days")
-      .hour(wateringTime.hour)
-      .minute(wateringTime.minute);
-    return [lastWateringMoment, nextWateringMoment];
-  };
 
   const _createTimerString = (lastWateringMoment, nextWateringMoment) => {
     let timeFromWateringTimes = nextWateringMoment.from(lastWateringMoment);
@@ -70,16 +66,17 @@ const PlantsScreen = ({ navigation, userID, wateringTime }) => {
       marginBottom: width / 2,
     },
     buttonContainer: {
-      width: width / 4,
+      width: width,
       height: width / 4,
       alignItems: "center",
-      justifyContent: "center",
+      justifyContent: "space-around",
       position: "absolute",
       zIndex: 100,
       bottom: 20,
-      left: width / 2 - width / 8,
+      left: 0,
+      flexDirection: "row",
     },
-    button: { width: "100%", height: "100%", backgroundColor: "pink" },
+    button: { width: "25%", height: width / 4, backgroundColor: "pink" },
     plantContainer: {
       width: width / 2,
       height: width / 2,
@@ -94,8 +91,12 @@ const PlantsScreen = ({ navigation, userID, wateringTime }) => {
     return plantsDocs.map((plantDoc, i) => {
       const plantData = plantDoc.data();
       const plantId = plantDoc.id;
-      const [lastWateringMoment, nextWateringMoment] = createWateringMoments(
-        plantData.wateringHistory,
+      const lastWateringMoment = plant.getLastWateringMoment(
+        plantData.wateringHistory
+      );
+      const nextWateringMoment = plant.getNextWateringMoment(
+        lastWateringMoment,
+        wateringTime,
         plantData.interval
       );
 
@@ -122,7 +123,7 @@ const PlantsScreen = ({ navigation, userID, wateringTime }) => {
   return (
     <View style={{ flex: 1, backgroundColor: "#fff" }}>
       <View style={styles.buttonContainer}>
-        <View style={styles.button}>
+        <View style={{ ...styles.button, backgroundColor: "green" }}>
           <RectButton
             onPress={() => {
               navigation.navigate("NewPlant");
@@ -134,7 +135,26 @@ const PlantsScreen = ({ navigation, userID, wateringTime }) => {
               justifyContent: "center",
             }}
           >
-            <Text style={styles.buttonText}>+</Text>
+            <Text style={styles.buttonText}>
+              <FontAwesome5 name="seedling" size={50} color="white" />
+            </Text>
+          </RectButton>
+        </View>
+        <View style={{ ...styles.button, backgroundColor: "blue" }}>
+          <RectButton
+            onPress={() => {
+              plant.waterAll(plantsDocs);
+            }}
+            style={{
+              width: "100%",
+              height: "100%",
+              alignItems: "center",
+              justifyContent: "center",
+            }}
+          >
+            <Text style={styles.buttonText}>
+              <Ionicons name="ios-water" size={50} color="white" />
+            </Text>
           </RectButton>
         </View>
       </View>
@@ -144,6 +164,22 @@ const PlantsScreen = ({ navigation, userID, wateringTime }) => {
     </View>
   );
 };
+
+
+// <TouchableOpacity
+//   style={{
+//     borderWidth: 1,
+//     borderColor: "rgba(0,0,0,0.2)",
+//     alignItems: "center",
+//     justifyContent: "center",
+//     width: 100,
+//     height: 100,
+//     backgroundColor: "#fff",
+//     borderRadius: 50,
+//   }}
+// >
+//   <Ionicons name="ios-water" size={50} color="white" />
+// </TouchableOpacity>
 
 const mapStateToProps = (state) => ({
   userID: state.auth.user.uid,
