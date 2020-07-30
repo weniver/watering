@@ -8,8 +8,9 @@ import { useHeaderHeight } from "@react-navigation/stack";
 import { createPlant } from "../store/actions/plants.js";
 import { connect } from "react-redux";
 import { db } from "../config/firebase.js";
+import * as plant from "../helpers/plant.js";
 
-const NewPlantScreen = ({ navigation, userID }) => {
+const NewPlantScreen = ({ navigation, userID, wateringTime }) => {
   const [value, setValue] = useState(0);
   const { width, height } = useDimensions().window;
   const [serverSideError, setServerSideError] = useState(false);
@@ -36,15 +37,26 @@ const NewPlantScreen = ({ navigation, userID }) => {
   const createPlant = async (interval, name = "") => {
     try {
       let birthday = new Date().getTime();
-      let plant = {
+
+      let nextWateringMoment = plant.getNextWateringMoment(
+        birthday,
+        wateringTime,
+        -100
+      );
+
+      let nextWatering = nextWateringMoment.valueOf();
+
+      let plantData = {
         interval,
         name,
         birthday,
+        nextWatering,
         user: userID,
         active: true,
         wateringHistory: [birthday],
       };
-      await db.collection("plants").doc().set(plant);
+
+      await db.collection("plants").doc().set(plantData);
     } catch (e) {
       console.log(e);
     }
@@ -86,6 +98,7 @@ const NewPlantScreen = ({ navigation, userID }) => {
 
 const mapStateToProps = (state) => ({
   userID: state.auth.user.uid,
+  wateringTime: state.auth.settings.wateringTime,
 });
 
 export default connect(mapStateToProps)(NewPlantScreen);

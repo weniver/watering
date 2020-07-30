@@ -124,7 +124,7 @@ const PlantScreen = ({ route, navigation, wateringTime }) => {
 
   const _handleWatering = async () => {
     try {
-      await plant.water(plantSnapshot);
+      await plant.water(plantSnapshot,wateringTime);
     } catch (e) {
       console.log(e);
     }

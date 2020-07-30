@@ -143,7 +143,7 @@ const PlantsScreen = ({ navigation, userID, wateringTime }) => {
         <View style={{ ...styles.button, backgroundColor: "blue" }}>
           <RectButton
             onPress={() => {
-              plant.waterAll(plantsDocs);
+              plant.waterAll(plantsDocs, wateringTime);
             }}
             style={{
               width: "100%",
@@ -164,7 +164,6 @@ const PlantsScreen = ({ navigation, userID, wateringTime }) => {
     </View>
   );
 };
-
 
 // <TouchableOpacity
 //   style={{
